@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Zählerstand Mock-API
+  version: 0.1.0
+  description: |
+    Mock-API für die Probeaufgabe. Läuft lokal unter http://localhost:3001/api.
+    Im Dev-Server (Vite) ist sie zusätzlich über den Proxy /api erreichbar.
+
+    Bekanntes Verhalten:
+    - Jede Antwort ist künstlich um ca. 600 ms verzögert.
+    - GET /meters/3/readings liefert immer 503 (simulierter Ausfall).
+    - Die API prüft beim Anlegen nur, ob `value` eine nicht-negative Zahl ist –
+      eine Plausibilitätsprüfung (z. B. "neuer Stand >= letzter Stand") findet NICHT statt.
+servers:
+  - url: http://localhost:3001/api
+paths:
+  /meters:
+    get:
+      summary: Alle Zähler des Kunden
+      parameters:
+        - in: query
+          name: energyType
+          schema: { $ref: '#/components/schemas/EnergyType' }
+          description: Optionaler Filter nach Energieart
+      responses:
+        '200':
+          description: Liste der Zähler
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Meter' }
+  /meters/{meterId}/readings:
+    parameters:
+      - in: path
+        name: meterId
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Bisherige Zählerstände eines Zählers
+      description: Die Reihenfolge der Einträge ist nicht garantiert. Sortierung z. B. über `?_sort=readAt&_order=desc`.
+      responses:
+        '200':
+          description: Liste der Ablesungen
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Reading' }
+        '503':
+          description: Dienst nicht verfügbar
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      summary: Neuen Zählerstand melden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [value]
+              properties:
+                value: { type: number, minimum: 0, example: 12001.4 }
+                readAt: { type: string, format: date, description: 'Standard: heute' }
+      responses:
+        '201':
+          description: Angelegt
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reading' }
+        '400':
+          description: Ungültige Eingabe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+components:
+  schemas:
+    EnergyType:
+      type: string
+      enum: [gas, strom]
+    Meter:
+      type: object
+      properties:
+        id: { type: integer }
+        meterNumber: { type: string, example: 1ESY1160123456 }
+        energyType: { $ref: '#/components/schemas/EnergyType' }
+        unit: { type: string, example: m³ }
+        address: { type: string }
+        label: { type: string, example: Wohnung }
+    Reading:
+      type: object
+      properties:
+        id: { type: integer }
+        meterId: { type: integer }
+        value: { type: number }
+        readAt: { type: string, format: date }
+        source: { type: string, enum: [customer, estimated, technician] }
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        field: { type: string }
+        message: { type: string }

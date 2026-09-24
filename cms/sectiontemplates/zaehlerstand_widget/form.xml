@@ -1,0 +1,13 @@
+<CMS_MODULE>
+  <CMS_INPUT_TEXT name="headline" hFill="yes">
+    <LANGINFOS>
+      <LANGINFO lang="*" label="Headline"/>
+    </LANGINFOS>
+  </CMS_INPUT_TEXT>
+
+  <CMS_INPUT_TEXTAREA name="st_text">
+    <LANGINFOS>
+      <LANGINFO lang="*" label="Text"/>
+    </LANGINFOS>
+  </CMS_INPUT_TEXTAREA>
+</CMS_MODULE>

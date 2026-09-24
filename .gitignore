@@ -1,0 +1,11 @@
+node_modules/
+dist/
+mock-api/db.json
+*.log
+.DS_Store
+# .NET / Java
+bin/
+obj/
+target/
+.idea/
+.vs/

@@ -1,0 +1,36 @@
+{
+  "meters": [
+    {
+      "id": 1,
+      "meterNumber": "1ESY1160123456",
+      "energyType": "gas",
+      "unit": "m³",
+      "address": "Musterstraße 12, 10115 Berlin",
+      "label": "Wohnung"
+    },
+    {
+      "id": 2,
+      "meterNumber": "1APA0012345678",
+      "energyType": "strom",
+      "unit": "kWh",
+      "address": "Musterstraße 12, 10115 Berlin",
+      "label": "Wohnung"
+    },
+    {
+      "id": 3,
+      "meterNumber": "1ESY1160987654",
+      "energyType": "gas",
+      "unit": "m³",
+      "address": "Beispielweg 3, 12345 Berlin",
+      "label": "Gartenhaus"
+    }
+  ],
+  "readings": [
+    { "id": 1, "meterId": 1, "value": 10234.5, "readAt": "2025-12-31", "source": "customer" },
+    { "id": 2, "meterId": 1, "value": 11820.1, "readAt": "2026-06-30", "source": "customer" },
+    { "id": 3, "meterId": 1, "value": 9120.0, "readAt": "2025-06-30", "source": "estimated" },
+    { "id": 4, "meterId": 2, "value": 4512, "readAt": "2026-01-15", "source": "technician" },
+    { "id": 5, "meterId": 2, "value": 5890, "readAt": "2026-07-01", "source": "customer" },
+    { "id": 6, "meterId": 3, "value": 812.3, "readAt": "2026-03-01", "source": "customer" }
+  ]
+}
