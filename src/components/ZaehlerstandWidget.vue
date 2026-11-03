@@ -10,7 +10,7 @@
       <label :for="`${uid}-meter`" style="display: block; font-weight: bold">Zähler</label>
       <select
         :id="`${uid}-meter`"
-        v-model="selectedMeter"
+        v-model="selectedMeterId"
         :disabled="saving"
         style="width: 100%; padding: 8px; margin: 4px 0 10px"
       >
@@ -70,10 +70,12 @@ import { ref, computed, onMounted, watch, useId } from 'vue'
 import { formatMeterNumber } from '../utils/format'
 import { sortNewestFirst } from '../utils/readings'
 import { validateReading } from '../utils/validation'
+import { ApiError, createReading, fetchMeters, fetchReadings } from '../api/meters'
+import type { Meter, Reading } from '../types'
 
-const meters = ref<any[]>([])
-const selectedMeter = ref<any>(null)
-const readings = ref<any[]>([])
+const meters = ref<Meter[]>([])
+const selectedMeterId = ref<number | null>(null)
+const readings = ref<Reading[]>([])
 const newValue = ref('')
 
 const uid = useId()
@@ -99,23 +101,22 @@ async function loadReadings(meterId: number) {
   readingsError.value = ''
   readingsLoading.value = true
   try {
-    const res = await fetch('http://localhost:3001/api/meters/' + meterId + '/readings')
-    const data = res.ok ? await res.json() : null
+    const data = await fetchReadings(meterId)
     if (request !== latestRequest) return
-    if (!data) {
-      readingsError.value = 'Die Ablesungen können gerade nicht geladen werden. Bitte versuche es später erneut.'
-      return
-    }
     readings.value = sortNewestFirst(data)
-  } catch {
-    if (request === latestRequest) readingsError.value = NETWORK_ERROR
+  } catch (e) {
+    if (request !== latestRequest) return
+    readingsError.value =
+      e instanceof ApiError
+        ? 'Die Ablesungen können gerade nicht geladen werden. Bitte versuche es später erneut.'
+        : NETWORK_ERROR
   } finally {
     if (request === latestRequest) readingsLoading.value = false
   }
 }
 
 // Bei jeder Zählerauswahl die Ablesungen neu laden.
-watch(selectedMeter, (meterId) => {
+watch(selectedMeterId, (meterId) => {
   formError.value = ''
   successMessage.value = ''
   if (meterId !== null) loadReadings(meterId)
@@ -123,10 +124,8 @@ watch(selectedMeter, (meterId) => {
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:3001/api/meters')
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    meters.value = await res.json()
-    selectedMeter.value = meters.value[0]?.id ?? null
+    meters.value = await fetchMeters()
+    selectedMeterId.value = meters.value[0]?.id ?? null
   } catch {
     metersError.value = 'Deine Zähler konnten nicht geladen werden. Bitte lade die Seite neu.'
   } finally {
@@ -135,7 +134,7 @@ onMounted(async () => {
 })
 
 async function send() {
-  if (selectedMeter.value === null || saving.value) return
+  if (selectedMeterId.value === null || saving.value) return
   formError.value = ''
   successMessage.value = ''
 
@@ -147,21 +146,15 @@ async function send() {
 
   saving.value = true
   try {
-    const res = await fetch('http://localhost:3001/api/meters/' + selectedMeter.value + '/readings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: result.value }),
-    })
-    if (!res.ok) {
-      formError.value = 'Der Zählerstand konnte nicht gespeichert werden. Bitte versuche es erneut.'
-      return
-    }
-    const data = await res.json()
-    readings.value = sortNewestFirst([...readings.value, data])
+    const created = await createReading(selectedMeterId.value, result.value)
+    readings.value = sortNewestFirst([...readings.value, created])
     newValue.value = ''
     successMessage.value = 'Danke! Dein Zählerstand wurde gespeichert.'
-  } catch {
-    formError.value = NETWORK_ERROR
+  } catch (e) {
+    formError.value =
+      e instanceof ApiError
+        ? 'Der Zählerstand konnte nicht gespeichert werden. Bitte versuche es erneut.'
+        : NETWORK_ERROR
   } finally {
     saving.value = false
   }
