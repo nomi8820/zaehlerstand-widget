@@ -8,7 +8,7 @@
 
     <div v-if="latestReading">
       <p>
-        Letzter Stand: <b>{{ latestReading.value }} m³</b> vom
+        Letzter Stand: <b>{{ latestReading.value }} {{ currentMeter?.unit }}</b> vom
         {{ latestReading.readAt }}
       </p>
     </div>
@@ -46,6 +46,7 @@ const meters = ref<any[]>([])
 const selectedMeter = ref<any>(null)
 const readings = ref<any[]>([])
 const newValue = ref('')
+const currentMeter = computed(() => meters.value.find((m) => m.id === selectedMeter.value))
 const latestReading = computed(() => readings.value[0])
 
 async function loadReadings(meterId: number) {
