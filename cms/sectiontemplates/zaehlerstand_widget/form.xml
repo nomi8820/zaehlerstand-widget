@@ -1,13 +1,48 @@
 <CMS_MODULE>
-  <CMS_INPUT_TEXT name="headline" hFill="yes">
+  <CMS_INPUT_TEXT name="st_headline" hFill="yes" singleLine="no" useLanguages="no">
     <LANGINFOS>
-      <LANGINFO lang="*" label="Headline"/>
+      <LANGINFO lang="*" label="Überschrift" description="Pflichtfeld, max. 80 Zeichen"/>
     </LANGINFOS>
   </CMS_INPUT_TEXT>
 
-  <CMS_INPUT_TEXTAREA name="st_text">
+  <CMS_INPUT_DOM name="st_text" hFill="yes" useLanguages="no">
+    <FORMATS>
+      <TEMPLATE name="p"/>
+      <TEMPLATE name="b"/>
+      <TEMPLATE name="i"/>
+    </FORMATS>
     <LANGINFOS>
-      <LANGINFO lang="*" label="Text"/>
+      <LANGINFO lang="*" label="Einleitungstext"/>
+    </LANGINFOS>
+  </CMS_INPUT_DOM>
+
+  <CMS_INPUT_COMBOBOX name="st_energy_type" hFill="yes" singleLine="no" useLanguages="no">
+    <ENTRIES>
+      <ENTRY value="gas">
+        <LANGINFOS>
+          <LANGINFO lang="*" label="Gas"/>
+        </LANGINFOS>
+      </ENTRY>
+      <ENTRY value="strom">
+        <LANGINFOS>
+          <LANGINFO lang="*" label="Strom"/>
+        </LANGINFOS>
+      </ENTRY>
+    </ENTRIES>
+    <LANGINFOS>
+      <LANGINFO lang="*" label="Energieart" description="Pflichtfeld"/>
+    </LANGINFOS>
+  </CMS_INPUT_COMBOBOX>
+
+  <CMS_INPUT_TOGGLE name="st_show_history" type="checkbox" useLanguages="no">
+    <LANGINFOS>
+      <LANGINFO lang="*" label="Verlauf anzeigen"/>
+    </LANGINFOS>
+  </CMS_INPUT_TOGGLE>
+
+  <CMS_INPUT_TEXTAREA name="st_success_message" hFill="yes" useLanguages="no">
+    <LANGINFOS>
+      <LANGINFO lang="*" label="Erfolgsmeldung" description="Max. 200 Zeichen. Leer = Standardtext"/>
     </LANGINFOS>
   </CMS_INPUT_TEXTAREA>
 </CMS_MODULE>

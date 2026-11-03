@@ -1,2 +1,67 @@
 <RULES>
+  <!-- Überschrift ist Pflicht -->
+  <RULE>
+    <WITH>
+      <NOT>
+        <PROPERTY name="EMPTY" source="st_headline"/>
+      </NOT>
+    </WITH>
+    <DO>
+      <VALIDATION scope="SAVE">
+        <PROPERTY name="VALID" source="st_headline"/>
+        <MESSAGE lang="*" text="Bitte gib eine Überschrift ein."/>
+      </VALIDATION>
+    </DO>
+  </RULE>
+
+  <!-- Überschrift max. 80 Zeichen -->
+  <RULE>
+    <WITH>
+      <NOT>
+        <GREATER_THAN>
+          <PROPERTY name="LENGTH" source="st_headline"/>
+          <NUMBER>80</NUMBER>
+        </GREATER_THAN>
+      </NOT>
+    </WITH>
+    <DO>
+      <VALIDATION scope="SAVE">
+        <PROPERTY name="VALID" source="st_headline"/>
+        <MESSAGE lang="*" text="Die Überschrift darf höchstens 80 Zeichen lang sein."/>
+      </VALIDATION>
+    </DO>
+  </RULE>
+
+  <!-- Energieart ist Pflicht -->
+  <RULE>
+    <WITH>
+      <NOT>
+        <PROPERTY name="EMPTY" source="st_energy_type"/>
+      </NOT>
+    </WITH>
+    <DO>
+      <VALIDATION scope="SAVE">
+        <PROPERTY name="VALID" source="st_energy_type"/>
+        <MESSAGE lang="*" text="Bitte wähle eine Energieart aus."/>
+      </VALIDATION>
+    </DO>
+  </RULE>
+
+  <!-- Erfolgsmeldung max. 200 Zeichen -->
+  <RULE>
+    <WITH>
+      <NOT>
+        <GREATER_THAN>
+          <PROPERTY name="LENGTH" source="st_success_message"/>
+          <NUMBER>200</NUMBER>
+        </GREATER_THAN>
+      </NOT>
+    </WITH>
+    <DO>
+      <VALIDATION scope="SAVE">
+        <PROPERTY name="VALID" source="st_success_message"/>
+        <MESSAGE lang="*" text="Die Erfolgsmeldung darf höchstens 200 Zeichen lang sein."/>
+      </VALIDATION>
+    </DO>
+  </RULE>
 </RULES>
