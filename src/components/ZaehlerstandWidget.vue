@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { formatMeterNumber } from '../utils/format'
 
 const meters = ref<any[]>([])
@@ -45,13 +45,20 @@ const selectedMeter = ref<any>(null)
 const readings = ref<any[]>([])
 const newValue = ref('')
 
+async function loadReadings(meterId: number) {
+  const res = await fetch('http://localhost:3001/api/meters/' + meterId + '/readings')
+  readings.value = await res.json()
+}
+
+// Bei jeder Zählerauswahl die Ablesungen neu laden.
+watch(selectedMeter, (meterId) => {
+  if (meterId !== null) loadReadings(meterId)
+})
+
 onMounted(async () => {
   const res = await fetch('http://localhost:3001/api/meters')
   meters.value = await res.json()
   selectedMeter.value = meters.value[0].id
-  const res2 = await fetch('http://localhost:3001/api/meters/' + selectedMeter.value + '/readings')
-  readings.value = await res2.json()
-  console.log('readings', readings.value)
 })
 
 async function send() {
