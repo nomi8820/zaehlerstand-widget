@@ -9,6 +9,7 @@
       body { margin: 0; font-family: system-ui, sans-serif; color: #1a1a1a; background: #f6f7f9; }
       header { background: #004b87; color: #fff; padding: 16px 24px; font-weight: 600; }
       main { max-width: 960px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+      .zaehlerstand-teaser { background: #e5f0f9; padding: 20px; }
     </style>
   </head>
   <body>
@@ -20,19 +21,27 @@
     -->
     <header>GASAG Kundenportal · lokale Vorschau</header>
     <main>
-      <!-- Absatz 1: Absatzvorlage "Zählerstand-Widget" -->
-      <div class="teaser" style="background:#e5f0f9;padding:20px">
-        <h2>Zählerstand melden</h2>
-        <p>Melde uns deinen aktuellen Gaszählerstand – so bekommst du eine genaue Abrechnung.</p>
-        <div data-zaehlerstand-widget></div>
-      </div>
+      <!-- Absatz 1: Gas, mit Verlauf, eigene Erfolgsmeldung mit Anführungszeichen (von .convert2 escaped) -->
+      <section class="zaehlerstand-teaser">
+        <h2 class="zaehlerstand-teaser__headline">Zählerstand melden</h2>
+        <div class="zaehlerstand-teaser__text"><p>Melde uns deinen aktuellen <b>Gaszählerstand</b> – so bekommst du eine genaue Abrechnung.</p></div>
+        <div
+          data-zaehlerstand-widget
+          data-energy-type="gas"
+          data-show-history="true"
+          data-success-message="Danke! Wir haben deinen &quot;Gaszählerstand&quot; erhalten."
+        ></div>
+      </section>
 
-      <!-- Absatz 2: Absatzvorlage "Zählerstand-Widget" -->
-      <div class="teaser" style="background:#e5f0f9;padding:20px">
-        <h2>Stromzähler ablesen</h2>
-        <p>Auch für deinen Stromzähler kannst du den Stand hier direkt übermitteln.</p>
-        <div data-zaehlerstand-widget></div>
-      </div>
+      <!-- Absatz 2: Strom, ohne Verlauf, ohne Einleitungstext und Erfolgsmeldung (Standardtext) -->
+      <section class="zaehlerstand-teaser">
+        <h2 class="zaehlerstand-teaser__headline">Stromzähler ablesen</h2>
+        <div
+          data-zaehlerstand-widget
+          data-energy-type="strom"
+          data-show-history="false"
+        ></div>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

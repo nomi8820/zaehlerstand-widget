@@ -1,7 +1,5 @@
 <template>
   <div style="font-family: Arial, sans-serif; max-width: 600px">
-    <h3 style="color: #004b87">Zählerstand melden</h3>
-
     <p v-if="metersLoading" role="status">Zähler werden geladen …</p>
     <p v-else-if="metersError" role="alert" style="color: #b00020">{{ metersError }}</p>
     <p v-else-if="!meters.length">Es sind keine Zähler hinterlegt.</p>
@@ -50,7 +48,7 @@
       <p v-if="successMessage" role="status" style="color: #1b7f3b">{{ successMessage }}</p>
     </form>
 
-    <table v-if="readings.length && !readingsLoading" style="margin-top: 20px; width: 100%">
+    <table v-if="showHistory && readings.length && !readingsLoading" style="margin-top: 20px; width: 100%">
       <tr>
         <th>Datum</th>
         <th>Stand</th>
@@ -72,6 +70,7 @@ import { sortNewestFirst } from '../utils/readings'
 import { validateReading } from '../utils/validation'
 import { ApiError, createReading, fetchMeters, fetchReadings } from '../api/meters'
 import type { Meter, Reading } from '../types'
+import type { WidgetConfig } from '../utils/config'
 
 const meters = ref<Meter[]>([])
 const selectedMeterId = ref<number | null>(null)
@@ -91,6 +90,7 @@ const successMessage = ref('')
 const NETWORK_ERROR = 'Keine Verbindung zum Server. Bitte prüfe deine Internetverbindung.'
 const currentMeter = computed(() => meters.value.find((m) => m.id === selectedMeterId.value))
 const latestReading = computed(() => readings.value[0])
+const props = defineProps<WidgetConfig>()
 
 // Zählt Ladevorgänge, damit eine späte Antwort keinen neueren Zählerwechsel überschreibt.
 let latestRequest = 0
@@ -124,7 +124,7 @@ watch(selectedMeterId, (meterId) => {
 
 onMounted(async () => {
   try {
-    meters.value = await fetchMeters()
+    meters.value = await fetchMeters(props.energyType)
     selectedMeterId.value = meters.value[0]?.id ?? null
   } catch {
     metersError.value = 'Deine Zähler konnten nicht geladen werden. Bitte lade die Seite neu.'
@@ -149,7 +149,7 @@ async function send() {
     const created = await createReading(selectedMeterId.value, result.value)
     readings.value = sortNewestFirst([...readings.value, created])
     newValue.value = ''
-    successMessage.value = 'Danke! Dein Zählerstand wurde gespeichert.'
+    successMessage.value = props.successMessage
   } catch (e) {
     formError.value =
       e instanceof ApiError
