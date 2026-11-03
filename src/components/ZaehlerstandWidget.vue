@@ -40,6 +40,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { formatMeterNumber } from '../utils/format'
 import { sortNewestFirst } from '../utils/readings'
+import { validateReading } from '../utils/validation'
 
 const meters = ref<any[]>([])
 const selectedMeter = ref<any>(null)
@@ -66,20 +67,20 @@ onMounted(async () => {
 })
 
 async function send() {
-  if (!newValue.value) {
-    alert('Bitte Zählerstand eingeben')
-    return
-  }
-  const last = latestReading.value
-  if (last && Number(newValue.value) < last.value) {
-    alert('Der neue Zählerstand darf nicht kleiner als der letzte sein')
+  const result = validateReading(newValue.value, latestReading.value?.value)
+  if (!result.ok) {
+    alert(result.error)
     return
   }
   const res = await fetch('http://localhost:3001/api/meters/' + selectedMeter.value + '/readings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ value: Number(newValue.value) }),
+    body: JSON.stringify({ value: result.value }),
   })
+  if (!res.ok) {
+    alert('Der Zählerstand konnte nicht gespeichert werden. Bitte versuche es erneut.')
+    return
+  }
   const data = await res.json()
   readings.value = sortNewestFirst([...readings.value, data])
   alert('Danke!')
