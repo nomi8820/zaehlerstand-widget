@@ -89,7 +89,7 @@ const formError = ref('')
 const successMessage = ref('')
 
 const NETWORK_ERROR = 'Keine Verbindung zum Server. Bitte prüfe deine Internetverbindung.'
-const currentMeter = computed(() => meters.value.find((m) => m.id === selectedMeter.value))
+const currentMeter = computed(() => meters.value.find((m) => m.id === selectedMeterId.value))
 const latestReading = computed(() => readings.value[0])
 
 // Zählt Ladevorgänge, damit eine späte Antwort keinen neueren Zählerwechsel überschreibt.
