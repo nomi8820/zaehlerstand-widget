@@ -6,10 +6,10 @@
       <option v-for="m in meters" :value="m.id">{{ m.label }} – {{ formatMeterNumber(m.meterNumber) }}</option>
     </select>
 
-    <div v-if="readings.length">
+    <div v-if="latestReading">
       <p>
-        Letzter Stand: <b>{{ readings[readings.length - 1].value }} m³</b> vom
-        {{ readings[readings.length - 1].readAt }}
+        Letzter Stand: <b>{{ latestReading.value }} m³</b> vom
+        {{ latestReading.readAt }}
       </p>
     </div>
 
@@ -37,17 +37,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { formatMeterNumber } from '../utils/format'
+import { sortNewestFirst } from '../utils/readings'
 
 const meters = ref<any[]>([])
 const selectedMeter = ref<any>(null)
 const readings = ref<any[]>([])
 const newValue = ref('')
+const latestReading = computed(() => readings.value[0])
 
 async function loadReadings(meterId: number) {
+  readings.value = [] // keine Werte vom vorher gewählten Zähler zeigen
   const res = await fetch('http://localhost:3001/api/meters/' + meterId + '/readings')
-  readings.value = await res.json()
+  if (!res.ok) return
+  readings.value = sortNewestFirst(await res.json())
 }
 
 // Bei jeder Zählerauswahl die Ablesungen neu laden.
@@ -66,7 +70,7 @@ async function send() {
     alert('Bitte Zählerstand eingeben')
     return
   }
-  const last = readings.value[readings.value.length - 1]
+  const last = latestReading.value
   if (last && Number(newValue.value) < last.value) {
     alert('Der neue Zählerstand darf nicht kleiner als der letzte sein')
     return
@@ -77,7 +81,7 @@ async function send() {
     body: JSON.stringify({ value: Number(newValue.value) }),
   })
   const data = await res.json()
-  readings.value.push(data)
+  readings.value = sortNewestFirst([...readings.value, data])
   alert('Danke!')
 }
 </script>
