@@ -1,9 +1,13 @@
 package org.example.zaehlerstand.mockapi;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /** Schickt die Anfragen an die Mock-API. */
@@ -30,5 +34,20 @@ public class MockApiClient {
       .uri("/meters/{id}/readings", meterId)
       .retrieve()
       .body(String.class);
+  }
+  public List<Reading> getReadingList(int meterId) {
+    return restClient.get()
+      .uri("/meters/{id}/readings", meterId)
+      .retrieve()
+      .body(new ParameterizedTypeReference<List<Reading>>() {});
+  }
+
+  public Reading createReading(int meterId, double value) {
+    return restClient.post()
+      .uri("/meters/{id}/readings", meterId)
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(Map.of("value", value))
+      .retrieve()
+      .body(Reading.class);
   }
 }
